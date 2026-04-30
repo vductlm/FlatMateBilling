@@ -1,11 +1,7 @@
-"""
-Flatmate billing: split a bill proportionally by days stayed.
-"""
-from dataclasses import dataclass, field
-
+from dataclasses import dataclass
 
 @dataclass
-class Bill:
+class BillSharing:
     name: str
     amount: float
 
@@ -15,23 +11,23 @@ class FlatMate:
     name: str
     days: int
 
-    def share(self, bill: Bill, mates: list["FlatMate"]) -> float:
-        """Pay proportional to days stayed vs total occupancy days."""
-        total_days = sum(m.days for m in mates)
-        return bill.amount * (self.days / total_days)
+    def pay(self, bill: BillSharing, mate:int, total_day: int)-> float:
+        return (bill.amount / mate / total_day) * self.days
 
-
-def print_summary(bill: Bill, mates: list[FlatMate]) -> None:
-    print(f"Bill: {bill.name} — Total: £{bill.amount:.2f}\n")
+def print_summary(bill: BillSharing, mates: list[FlatMate]):
+    total_mates = len(mates)
+    total_day = sum(m.days for m in mates)
+    print(f"Total: {total_mates} with {total_day} days in total: {bill.amount}")
     for mate in mates:
-        print(f"  {mate.name} ({mate.days} days): £{mate.share(bill, mates):.2f}")
+        print(f"{mate.name} in {mate.days} days: {mate.pay(bill, total_mates, total_day)}")
 
+def main():
+    total_bill = BillSharing(
+        "Aprils, 2026",
+        200.0
+    )
+    mates = [FlatMate('John', 20), FlatMate('Jenny', 30)]
+    print_summary(total_bill, mates)
 
-def main() -> None:
-    bill = Bill("April 2026", 200)
-    mates = [FlatMate("John", 30), FlatMate("Jenny", 20)]
-    print_summary(bill, mates)
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
